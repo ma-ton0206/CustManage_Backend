@@ -1,0 +1,10 @@
+# Docker build のときにコピーしないファイルやフォルダを指定するための設定ファイル
+
+# Python 仮想環境
+.venv
+.dockervenv
+
+# Python キャッシュ
+__pycache__
+*.pyc
+*.pyo

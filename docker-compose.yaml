@@ -1,0 +1,53 @@
+version: "3"
+services:
+  # FastAPI アプリ本体（コード修正反映用に volume マウント）。
+  demo-app:
+    build: .
+    volumes:
+      - .:/src
+    ports:
+      - 8000:8000 # ホストマシンのポート8000を、docker内のポート8000に接続する
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: CustManage # 初期データベース名
+      POSTGRES_USER: postgres # 初期ユーザー名（必要に応じて変更可能）
+      POSTGRES_PASSWORD: postgres # パスワード（任意に強化してください）
+      TZ: Asia/Tokyo # タイムゾーン（必須ではないがあるとよい）
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "35432:5432" # ホスト側:コンテナ側（MySQLの33306からPostgreSQL用に変更）
+
+
+  # DB のテーブル作成・更新を行う専用の一回実行コンテナ。
+  migrate:
+    build: .
+    command: poetry run python -m api.migrate_db
+    depends_on:
+      - db
+    volumes:
+      - ./api:/src/api
+    profiles:
+      - migrate
+
+
+  # PGAdmin コンテナ（データベース管理ツール）。
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"  # http://localhost:8080 でアクセス可能
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    profiles:
+      - pgadmin
+
+volumes:
+  postgres_data:
+  pgadmin_data:

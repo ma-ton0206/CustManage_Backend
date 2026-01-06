@@ -15,7 +15,7 @@ app = FastAPI()
 # CORS設定を追加
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # ← フロントのURL
+    allow_origins=["https://custmanage-frontend.onrender.com"],  # ← フロントのURL
     allow_credentials=True,
     allow_methods=["*"],  # ← OPTIONS, POST, GET などを許可
     allow_headers=["*"],

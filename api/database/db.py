@@ -2,10 +2,13 @@ from sqlalchemy import create_engine
 # 非同期のSQLAlchemyをインポート
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 # ormからsessionmakerとdeclarative_baseをインポート
+import os
 
 #DB_URL ="postgresql+psycopg2://<ユーザー名>:<パスワード>@<ホスト名>:<ポート>/<データベース名>"
-DB_URL = "postgresql+psycopg2://postgres:postgres@db:5432/CustManage"
-
+DB_URL = os.getenv(
+    "DATABASE_URL"
+    # "postgresql+psycopg2://postgres:postgres@db:5432/CustManage"
+)
 engine = create_engine(DB_URL, echo=True)
 # engineを作成してDBとの接続設定をしている。
 # echo=Trueは、SQLの実行結果をconsoleに表示する設定

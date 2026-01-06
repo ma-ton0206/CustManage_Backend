@@ -19,4 +19,5 @@ RUN poetry install --no-root
 COPY . .
 
 # 変更後
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--reload"]
+# CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--reload"]
+CMD ["sh", "-c", "uvicorn api.main:app --host 0.0.0.0 --port ${PORT}"]

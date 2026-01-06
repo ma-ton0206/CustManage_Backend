@@ -10,12 +10,12 @@ from api.models.users import Users
 
 def get_contacts(db: Session, client_id: int, department_id: int, current_user: Users):
     try:
-        query = (select(ContactModel).join(DepartmentModel).filter(
-            DepartmentModel.client_id == client_id
-        ).filter(
-            ContactModel.department_id == department_id
-        ).filter(
-            ContactModel.company_id == current_user.company_id))
+        query = (
+            select(ContactModel).
+            join(DepartmentModel).
+            filter(DepartmentModel.client_id == client_id).
+            filter(DepartmentModel.department_id == department_id).
+            filter(ContactModel.company_id == current_user.company_id))
         result = db.execute(query)
         contacts = result.scalars().all()
         return contacts

@@ -8,9 +8,14 @@ from api.routers.contact import router as contact_router
 from api.routers.department import router as department_router
 from api.routers.purchase_details import router as purchase_detail_router
 from fastapi.middleware.cors import CORSMiddleware
+from api.database.db import Base, engine
 
 
 app = FastAPI()
+
+@app.on_event("startup")
+def on_startup():
+    Base.metadata.create_all(bind=engine)
 
 # CORS設定を追加
 app.add_middleware(

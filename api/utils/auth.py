@@ -141,30 +141,12 @@ def send_activation_email(user_email: str, token: str):
 
     try:
         print("--------------------------------メール送信開始--------------------------------")
-        # sg = SendGridAPIClient(
-        #     os.getenv("SENDGRID_API_KEY", "").strip()
-        # )
-
-        # print("SENDGRID_API_KEY:", os.getenv("SENDGRID_API_KEY"))
-
-        # response = sg.send(message)
-        
-        key = os.getenv("SENDGRID_API_KEY", "")
-        k = key.strip()
-
-        print("raw_len:", len(key))
-        print("stripped_len:", len(k))
-        print("starts_SG:", k.startswith("SG."))
-        print("has_space:", (" " in key))
-        print("has_newline:", ("\n" in key or "\r" in key))
-        print("head/tail:", repr(k[:4] + "..." + k[-4:]))
 
         sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY", "").strip())
-        resp = sg.client.user.profile.get()
-        print(resp.status_code)
-        print(resp.body)
+        response = sg.send(message)
 
-        print("✅ ステータスコード:", resp.status_code)  # 202 が返れば成功
+        print("✅ ステータスコード:", response.status_code)  # 202 が返れば成功
+
         print("--------------------------------メール送信成功--------------------------------")
     except Exception as e:
         print("❌ エラー:", e)

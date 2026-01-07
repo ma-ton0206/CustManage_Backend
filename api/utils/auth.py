@@ -141,7 +141,10 @@ def send_activation_email(user_email: str, token: str):
 
     try:
         print("--------------------------------メール送信開始--------------------------------")
-        sg = SendGridAPIClient(os.getenv('SENDGRID_API_KEY'))
+        sg = SendGridAPIClient(
+            os.getenv("SENDGRID_API_KEY", "").strip()
+        )
+
         print("SENDGRID_API_KEY:", os.getenv("SENDGRID_API_KEY"))
 
         response = sg.send(message)

@@ -17,6 +17,7 @@ from fastapi import Request
 import os
 from dotenv import load_dotenv
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from python_http_client.exceptions import HTTPError
 
 bearer_scheme = HTTPBearer()
 
@@ -145,7 +146,15 @@ def send_activation_email(user_email: str, token: str):
         sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY", "").strip())
         response = sg.send(message)
 
-        print("✅ ステータスコード:", response.status_code)  # 202 が返れば成功
+        try:
+            response = sg.send(message)
+            print("send status:", response.status_code)
+            print("send body:", response.body)
+        except HTTPError as e:
+            print("HTTPError status:", e.status_code)
+            print("HTTPError body:", e.body)      # ← ここ重要
+            print("HTTPError headers:", e.headers)
+            raise
 
         print("--------------------------------メール送信成功--------------------------------")
     except Exception as e:

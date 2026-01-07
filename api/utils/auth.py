@@ -145,21 +145,16 @@ def send_activation_email(user_email: str, token: str):
 
         sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY", "").strip())
         response = sg.send(message)
+        print("send status:", response.status_code)
+        print("send body:", response.body)
 
-        try:
-            response = sg.send(message)
-            print("send status:", response.status_code)
-            print("send body:", response.body)
-        except HTTPError as e:
+
+        print("--------------------------------メール送信成功--------------------------------")
+    except Exception as e:
             print("HTTPError status:", e.status_code)
             print("HTTPError body:", e.body)      # ← ここ重要
             print("HTTPError headers:", e.headers)
             raise
-
-        print("--------------------------------メール送信成功--------------------------------")
-    except Exception as e:
-        print("❌ エラー:", e)
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 # 本登録用エンドポイントを叩くと、ユーザーが本登録される

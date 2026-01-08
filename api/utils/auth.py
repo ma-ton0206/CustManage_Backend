@@ -115,7 +115,7 @@ def send_activation_email(user_email: str, token: str):
 
     resend.api_key = RESEND_API_KEY
 
-    activation_link = f"http://localhost:3000/registerComplete?token={token}"
+    activation_link = f"https://custmanage-frontend.vercel.app/registerComplete?token={token}"
 
     try:
         print("--------------------------------メール送信開始--------------------------------")

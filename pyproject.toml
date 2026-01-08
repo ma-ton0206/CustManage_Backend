@@ -17,6 +17,7 @@ passlib = {version = "1.7.4", extras = ["bcrypt"]}
 bcrypt = "3.2.2"
 sendgrid = "*"
 python-multipart = "^0.0.20"
+resend = "^2.19.0"
 
 [tool.poetry.group.dev.dependencies]
 alembic = "^1.16.5"

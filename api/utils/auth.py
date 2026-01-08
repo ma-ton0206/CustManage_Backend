@@ -1,9 +1,6 @@
 from passlib.context import CryptContext
 from sendgrid.helpers.mail import Mail
 from sendgrid import SendGridAPIClient
-from email.utils import formatdate
-from email.mime.text import MIMEText
-import smtplib
 from datetime import datetime, timedelta
 from jose import jwt
 from fastapi import Depends, HTTPException
@@ -11,13 +8,11 @@ from sqlalchemy.orm import Session
 from api.database.db import get_db
 from api.models.users import Users
 from api.schemas.user import ActivateUserIn
-from jose import JWTError
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Request
 import os
 from dotenv import load_dotenv
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from python_http_client.exceptions import HTTPError
+import resend
 
 bearer_scheme = HTTPBearer()
 
@@ -109,52 +104,44 @@ def create_activation_token(user: Users):
     return token
 
 
-# 仮登録用メール送信関数
 def send_activation_email(user_email: str, token: str):
-    print("📩 send_activation_email() に渡された値:", user_email, type(user_email))
+    # 仮登録用メール送信関数
+    RESEND_API_KEY = os.getenv("RESEND_API_KEY", "").strip()
+
+    if not RESEND_API_KEY:
+        raise RuntimeError("RESEND_API_KEY is not set")
+
+    print("📩 send_activation_email():", user_email, type(user_email))
+
+    resend.api_key = RESEND_API_KEY
 
     activation_link = f"http://localhost:3000/registerComplete?token={token}"
-
-    # テストメール作成
-    message = Mail(
-        # 送信元（Single Sender Verificationで認証済みのアドレス）
-        from_email='manato.webdesign@gmail.com',
-        to_emails=user_email,    # 送信先（同じでOK）
-        subject='【CustManage】アカウント登録のお知らせ',
-        html_content=f'''
-        ------------------------------------------------------------------------------------------------<br>
-        {user_email} 様
-        <br>
-        <br>
-        以下のリンクからアカウント登録を完了してください。
-        <br>
-        このリンクは24時間有効です。
-        <br>
-        <br>
-        {activation_link}
-        <br>
-        <br>
-        ------------------------------------------------------------------------------------------------<br><br>
-        CustManageチーム
-        <br>
-        '''
-    )
 
     try:
         print("--------------------------------メール送信開始--------------------------------")
 
-        sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY", "").strip())
-        response = sg.send(message)
-        print("send status:", response.status_code)
-        print("send body:", response.body)
+        response = resend.Emails.send({
+            "from": "onboarding@resend.dev",
+            "to": [user_email],
+            "subject": "【CustManage】アカウント登録のお知らせ",
+            "html": f"""
+            <hr>
+            {user_email} 様<br><br>
+            以下のリンクからアカウント登録を完了してください。<br>
+            このリンクは24時間有効です。<br><br>
+            <a href="{activation_link}">{activation_link}</a><br><br>
+            <hr>
+            CustManageチーム
+            """
+        })
 
-
+        print("send response:", response)
         print("--------------------------------メール送信成功--------------------------------")
+        return response
+
     except Exception as e:
-            print("HTTPError status:", e.status_code)
-            print("HTTPError body:", e.body)      # ← ここ重要
-            print("HTTPError headers:", e.headers)
-            raise
+        print("❌ メール送信エラー:", e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # 本登録用エンドポイントを叩くと、ユーザーが本登録される
